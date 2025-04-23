@@ -122,6 +122,11 @@ class MyDataset(Dataset):
         control = self.transform(control)
         target = self.transform(target)
 
+        
+        # 拼接成 [6, H, W]
+        combined = torch.cat((target, control), dim=0)
+
+
         return {"image": target, "cond": control}
 
 

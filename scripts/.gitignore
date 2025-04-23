@@ -2,4 +2,5 @@
 *.nii.gz
 *.tar
 *.zip
+*.ckpt
 *.pt
