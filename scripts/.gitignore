@@ -1,0 +1,5 @@
+*.nii
+*.nii.gz
+*.tar
+*.zip
+*.pt

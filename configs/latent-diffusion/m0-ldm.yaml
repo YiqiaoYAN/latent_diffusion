@@ -1,0 +1,122 @@
+# model:
+#   base_learning_rate: 1.0e-4
+#   target: ldm.models.diffusion.ddpm.LatentDiffusion
+#   params:
+#     # 注意：这两个 config 都是放在 params 下面的子项
+#     first_stage_config:
+#       target: ldm.models.autoencoder.AutoencoderKL
+#       params:
+#         embed_dim: 4
+#         ckpt_path: models/first_stage_models/kl-f8/model.ckpt
+#         ddconfig:
+#           double_z: true
+#           z_channels: 4
+#           resolution: 256
+#           in_channels: 3
+#           out_ch: 3
+#           ch: 128
+#           ch_mult: [1,2,4,4]
+#           num_res_blocks: 2
+#           attn_resolutions: []
+#           dropout: 0.0
+#         lossconfig:
+#           target: torch.nn.Identity
+
+#     cond_stage_config: "__is_unconditional__"
+
+#     timesteps: 1000
+#     loss_type: l2
+#     image_size: 256
+#     channels: 3
+#     linear_start: 0.0001
+#     linear_end: 0.02
+#     log_every_t: 100
+#     l_simple_weight: 1.0
+#     conditioning_key: None
+#     clip_denoised: true
+#     unet_config:
+#       target: ldm.modules.diffusionmodules.openaimodel.UNetModel
+#       params:
+#         image_size: 256
+#         in_channels: 3
+#         out_channels: 3
+#         model_channels: 128
+#         attention_resolutions: [16, 8]
+#         num_res_blocks: 2
+#         num_heads: 4
+
+data:
+  target: main.DataModuleFromConfig
+  params:
+    batch_size: 4
+    num_workers: 8
+    train:
+      target: ldm.data.my_dataset.MyDataset
+      params:
+        data_root: C:/Users/z5495200/Codes/latent-diffusion/ldm/control_mean
+    validation:
+      target: ldm.data.my_dataset.MyDataset
+      params:
+        data_root: C:/Users/z5495200/Codes/latent-diffusion/ldm/control_mean
+
+lightning:
+  callbacks:
+    image_logger:
+      target: main.ImageLogger
+      params:
+        batch_frequency: 5000
+        max_images: 8
+        increase_log_steps: False
+  trainer:
+    benchmark: True
+
+
+
+
+
+
+model:
+  base_learning_rate: 1.0e-4
+  target: ldm.models.diffusion.ddpm.LatentDiffusion
+  params:
+    first_stage_config:
+      target: ldm.models.autoencoder.AutoencoderKL
+      params:
+        embed_dim: 4
+        ckpt_path: models/first_stage_models/kl-f8/model.ckpt
+        ddconfig:
+          double_z: true
+          z_channels: 4   # 
+          resolution: 256
+          in_channels: 3
+          out_ch: 3
+          ch: 128
+          ch_mult: [1, 2, 4, 4]
+          num_res_blocks: 2
+          attn_resolutions: []
+          dropout: 0.0
+        lossconfig:
+          target: torch.nn.Identity
+
+    cond_stage_config: "__is_unconditional__"
+    timesteps: 1000
+    loss_type: l2
+    image_size: 256
+    channels: 3
+    linear_start: 0.0001
+    linear_end: 0.02
+    log_every_t: 100
+    l_simple_weight: 1.0
+    conditioning_key: None
+    clip_denoised: true
+    unet_config:
+      target: ldm.modules.diffusionmodules.openaimodel.UNetModel
+      params:
+        image_size: 256
+        in_channels: 4
+        out_channels: 4
+        model_channels: 128
+        attention_resolutions: [16, 8]
+        num_res_blocks: 2
+        num_heads: 4
+
