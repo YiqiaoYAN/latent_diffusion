@@ -53,7 +53,7 @@ data:
     train:
       target: ldm.data.my_dataset.MyDataset
       params:
-        data_root:/g/data/ey6/yiqiao/latent-diffusion/ldm/control_mean
+        data_root: /g/data/ey6/yiqiao/latent-diffusion/ldm/control_mean
     validation:
       target: ldm.data.my_dataset.MyDataset
       params:
