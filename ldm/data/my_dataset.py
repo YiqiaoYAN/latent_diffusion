@@ -68,8 +68,11 @@ import torchvision.transforms as T
 import numpy as np
 import torch
 
+def repeat_channels(x):
+    return x.repeat(3, 1, 1)
 
 class MyDataset(Dataset):
+    
     def __init__(self, data_root):
         super().__init__()
         self.data_root = data_root
@@ -108,24 +111,24 @@ class MyDataset(Dataset):
         self.transform = T.Compose([
             T.Resize((256, 256)),
             T.ToTensor(),
+            T.Lambda(repeat_channels),
             T.Normalize([0.5], [0.5])
         ])
+    
+
 
     def __len__(self):
         return len(self.data_pairs)
 
     def __getitem__(self, idx):
         control_path, target_path = self.data_pairs[idx]
-        control = Image.open(control_path).convert("RGB")
-        target = Image.open(target_path).convert("RGB")
+        control = Image.open(control_path).convert("L")
+        target = Image.open(target_path).convert("L")
 
         control = self.transform(control)
         target = self.transform(target)
 
-        
-        # 拼接成 [6, H, W]
-        combined = torch.cat((target, control), dim=0)
-
+        # combined = torch.cat((target, control), dim=0)
 
         return {"image": target, "cond": control}
 

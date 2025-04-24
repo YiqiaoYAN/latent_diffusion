@@ -1,3 +1,4 @@
+###first without control imgs
 # model:
 #   base_learning_rate: 1.0e-4
 #   target: ldm.models.diffusion.ddpm.LatentDiffusion
@@ -45,35 +46,83 @@
 #         num_res_blocks: 2
 #         num_heads: 4
 
-data:
-  target: main.DataModuleFromConfig
-  params:
-    batch_size: 4
-    num_workers: 8
-    train:
-      target: ldm.data.my_dataset.MyDataset
-      params:
-        data_root: /g/data/ey6/yiqiao/latent_diffusion/ldm/control_mean
-    validation:
-      target: ldm.data.my_dataset.MyDataset
-      params:
-        data_root: /g/data/ey6/yiqiao/latent_diffusion/ldm/control_mean
+###second try with concat condition
+# data:
+#   target: main.DataModuleFromConfig
+#   params:
+#     batch_size: 4
+#     num_workers: 8
+#     train:
+#       target: ldm.data.my_dataset.MyDataset
+#       params:
+#         # data_root: /g/data/ey6/yiqiao/latent_diffusion/ldm/control_mean
+#         data_root: C:/Users/z5495200/Codes/latent-diffusion/ldm/control_mean
+#     validation:
+#       target: ldm.data.my_dataset.MyDataset
+#       params:
+#         # data_root: /g/data/ey6/yiqiao/latent_diffusion/ldm/control_mean
+#         data_root: C:/Users/z5495200/Codes/latent-diffusion/ldm/control_mean
 
-lightning:
-  callbacks:
-    image_logger:
-      target: main.ImageLogger
-      params:
-        batch_frequency: 5000
-        max_images: 8
-        increase_log_steps: False
-  trainer:
-    benchmark: True
+# lightning:
+#   callbacks:
+#     image_logger:
+#       target: main.ImageLogger
+#       params:
+#         batch_frequency: 5000
+#         max_images: 8
+#         increase_log_steps: False
+#   trainer:
+#     benchmark: True
 
 
 
 
 
+
+# model:
+#   base_learning_rate: 1.0e-4
+#   target: ldm.models.diffusion.ddpm.LatentDiffusion
+#   params:
+#     first_stage_config:
+#       target: ldm.models.autoencoder.AutoencoderKL
+#       params:
+#         embed_dim: 4
+#         ckpt_path: models/first_stage_models/kl-f8/model.ckpt
+#         ddconfig:
+#           double_z: true
+#           z_channels: 4   # 
+#           resolution: 256
+#           in_channels: 3
+#           out_ch: 3
+#           ch: 128
+#           ch_mult: [1, 2, 4, 4]
+#           num_res_blocks: 2
+#           attn_resolutions: []
+#           dropout: 0.0
+#         lossconfig:
+#           target: torch.nn.Identity
+
+#     cond_stage_config: "__is_unconditional__"
+#     timesteps: 1000
+#     loss_type: l2
+#     image_size: 256
+#     channels: 3
+#     linear_start: 0.0001
+#     linear_end: 0.02
+#     log_every_t: 100
+#     l_simple_weight: 1.0
+#     conditioning_key: concat
+#     clip_denoised: true
+#     unet_config:
+#       target: ldm.modules.diffusionmodules.openaimodel.UNetModel
+#       params:
+#         image_size: 256
+#         in_channels: 6
+#         out_channels: 3
+#         model_channels: 128
+#         attention_resolutions: [16, 8]
+#         num_res_blocks: 2
+#         num_heads: 4
 
 model:
   base_learning_rate: 1.0e-4
@@ -86,7 +135,7 @@ model:
         ckpt_path: models/first_stage_models/kl-f8/model.ckpt
         ddconfig:
           double_z: true
-          z_channels: 4   # 
+          z_channels: 4
           resolution: 256
           in_channels: 3
           out_ch: 3
@@ -98,7 +147,25 @@ model:
         lossconfig:
           target: torch.nn.Identity
 
-    cond_stage_config: "__is_unconditional__"
+    cond_stage_config:
+      target: ldm.models.autoencoder.AutoencoderKL  # 使用 Autoencoder 处理 control
+      params:
+        embed_dim: 4
+        ckpt_path: models/first_stage_models/kl-f8/model.ckpt  # 可以是同一个，也可以是 control 专用
+        ddconfig:
+          double_z: true
+          z_channels: 4
+          resolution: 256
+          in_channels: 3
+          out_ch: 3
+          ch: 128
+          ch_mult: [1, 2, 4, 4]
+          num_res_blocks: 2
+          attn_resolutions: []
+          dropout: 0.0
+        lossconfig:
+          target: torch.nn.Identity
+
     timesteps: 1000
     loss_type: l2
     image_size: 256
@@ -107,16 +174,44 @@ model:
     linear_end: 0.02
     log_every_t: 100
     l_simple_weight: 1.0
-    conditioning_key: None
+    conditioning_key: crossattn  # 控制条件通过 latent 融合，推荐 crossattn 或 custom latent concat
     clip_denoised: true
     unet_config:
       target: ldm.modules.diffusionmodules.openaimodel.UNetModel
       params:
-        image_size: 256
-        in_channels: 6
-        out_channels: 3
+        image_size: 32  # latent size after downscaling
+        in_channels: 4  # Autoencoder latent dim
+        out_channels: 4
         model_channels: 128
-        attention_resolutions: [16, 8]
+        attention_resolutions: [4, 2, 1]
         num_res_blocks: 2
         num_heads: 4
 
+data:
+  target: main.DataModuleFromConfig
+  params:
+    batch_size: 4
+    num_workers: 8
+    # num_workers: 0
+    train:
+      target: ldm.data.my_dataset.MyDataset
+      params:
+        # data_root: C:/Users/z5495200/Codes/latent-diffusion/ldm/control_mean
+        data_root: /g/data/ey6/yiqiao/latent_diffusion/ldm/control_mean
+    validation:
+      target: ldm.data.my_dataset.MyDataset
+      params:
+        # data_root: C:/Users/z5495200/Codes/latent-diffusion/ldm/control_mean
+        data_root: /g/data/ey6/yiqiao/latent_diffusion/ldm/control_mean
+
+lightning:
+  callbacks:
+    image_logger:
+      target: main.ImageLogger
+      params:
+        batch_frequency: 500
+        max_images: 8
+        increase_log_steps: False
+  trainer:
+    benchmark: True
+    max_epochs: 100

@@ -396,8 +396,9 @@ class CUDACallback(Callback):
     # see https://github.com/SeanNaren/minGPT/blob/master/mingpt/callback.py
     def on_train_epoch_start(self, trainer, pl_module):
         # Reset the memory use counter
-        torch.cuda.reset_peak_memory_stats(trainer.root_gpu)
-        torch.cuda.synchronize(trainer.root_gpu)
+        if torch.cuda.is_available():
+            torch.cuda.reset_peak_memory_stats(trainer.root_gpu)
+            torch.cuda.synchronize(trainer.root_gpu)
         self.start_time = time.time()
 
     def on_train_epoch_end(self, trainer, pl_module, outputs):
@@ -708,10 +709,10 @@ if __name__ == "__main__":
                 pudb.set_trace()
 
 
-        import signal
+        # import signal
 
-        signal.signal(signal.SIGUSR1, melk)
-        signal.signal(signal.SIGUSR2, divein)
+        # signal.signal(signal.SIGUSR1, melk)
+        # signal.signal(signal.SIGUSR2, divein)
 
         # run
         if opt.train:
