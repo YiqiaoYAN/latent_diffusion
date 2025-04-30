@@ -167,7 +167,6 @@ model:
           target: torch.nn.Identity
 
     timesteps: 200
-    ddim_steps: 50
     loss_type: l2
     image_size: 128
     channels: 3
