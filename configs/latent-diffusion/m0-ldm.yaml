@@ -148,7 +148,8 @@ model:
           target: torch.nn.Identity
 
     cond_stage_config:
-      target: ldm.models.autoencoder.AutoencoderKL  # 使用 Autoencoder 处理 control
+      # target: ldm.models.autoencoder.AutoencoderKL  # 使用 Autoencoder 处理 control
+      target: ldm.modules.encoders.modules.Identity
       params:
         embed_dim: 4
         ckpt_path: models/first_stage_models/kl-f8/model.ckpt  # 可以是同一个，也可以是 control 专用
