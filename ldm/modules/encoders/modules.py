@@ -200,3 +200,10 @@ class FrozenClipImageEmbedder(nn.Module):
         # x is assumed to be in range [-1,1]
         return self.model.encode_image(self.preprocess(x))
 
+##################Rigel added Identity class
+class Identity(nn.Module):
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+
+    def forward(self, x):
+        return x
