@@ -208,6 +208,9 @@ data:
 lightning:
   callbacks:
     image_logger:
+
+    #######Modify stage
+      log_images: False
       target: main.ImageLogger
       params:
         batch_frequency: 2000
