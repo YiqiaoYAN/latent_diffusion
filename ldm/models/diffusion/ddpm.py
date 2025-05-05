@@ -1243,9 +1243,7 @@ class LatentDiffusion(DDPM):
             ddim_sampler = DDIMSampler(self)
             #shape = (self.channels, self.image_size, self.image_size)
             ###########Rigel changed the logic
-            latent_size = self.image_size // 8 
-            shape = (self.first_stage_model.embed_dim, latent_size, latent_size)
-            # shape = (self.first_stage_model.embed_dim, self.image_size, self.image_size)
+            shape = (self.first_stage_model.embed_dim, self.image_size, self.image_size)
             samples, intermediates =ddim_sampler.sample(ddim_steps,batch_size,
                                                         shape,cond,verbose=False,**kwargs)
 
