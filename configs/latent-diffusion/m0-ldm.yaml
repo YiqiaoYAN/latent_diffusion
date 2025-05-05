@@ -136,7 +136,7 @@ model:
         ddconfig:
           double_z: true
           z_channels: 4
-          resolution: 64
+          resolution: 256
           in_channels: 3
           out_ch: 3
           ch: 128
@@ -156,7 +156,7 @@ model:
         ddconfig:
           double_z: true
           z_channels: 4
-          resolution: 64
+          resolution: 256
           in_channels: 3
           out_ch: 3
           ch: 128
@@ -169,7 +169,7 @@ model:
 
     timesteps: 200
     loss_type: l2
-    image_size: 64
+    image_size: 128
     channels: 3
     linear_start: 0.0001
     linear_end: 0.02
@@ -180,12 +180,11 @@ model:
     unet_config:
       target: ldm.modules.diffusionmodules.openaimodel.UNetModel
       params:
-        image_size: 8  # latent size after downscaling
+        image_size: 32  # latent size after downscaling
         in_channels: 4  # Autoencoder latent dim
         out_channels: 4
         model_channels: 128
-        # attention_resolutions: [4, 2, 1]
-        attention_resolutions: []
+        attention_resolutions: [4, 2, 1]
         num_res_blocks: 2
         num_heads: 4
 
@@ -219,4 +218,4 @@ lightning:
         increase_log_steps: False
   trainer:
     benchmark: True
-    max_epochs: 50
+    max_epochs: 30
